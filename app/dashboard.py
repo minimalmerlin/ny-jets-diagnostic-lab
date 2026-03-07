@@ -989,6 +989,34 @@ def render_sidebar(
     return page
 
 
+def enrich_latest_team_summary(latest_frame: pd.DataFrame) -> pd.DataFrame:
+    enriched = latest_frame.copy()
+    if "win_rank" not in enriched.columns and {"wins"} <= set(enriched.columns):
+        enriched["win_rank"] = enriched["wins"].rank(method="dense", ascending=False)
+    if "point_diff_rank" not in enriched.columns and {"avg_point_diff"} <= set(enriched.columns):
+        enriched["point_diff_rank"] = enriched["avg_point_diff"].rank(method="dense", ascending=False)
+    return enriched
+
+
+def latest_jets_summary_row(
+    latest_frame: pd.DataFrame,
+    jets_season_summary: pd.DataFrame,
+    focus_team: str,
+    latest_season: int,
+) -> pd.Series:
+    jets_latest = jets_season_summary[jets_season_summary["season"] == latest_season].copy()
+    jets_latest = jets_latest[jets_latest["team"] == focus_team]
+    if not jets_latest.empty:
+        return jets_latest.iloc[0]
+
+    fallback = latest_frame[latest_frame["team"] == focus_team].copy()
+    if fallback.empty:
+        raise RuntimeError(f"Kein Summary-Eintrag fuer {focus_team} in Saison {latest_season} gefunden.")
+    fallback["league_avg_win_pct"] = float(latest_frame["win_pct"].mean())
+    fallback["league_avg_point_diff"] = float(latest_frame["avg_point_diff"].mean())
+    return fallback.iloc[0]
+
+
 st.set_page_config(
     page_title="NY Jets Diagnostic Lab",
     layout="wide",
@@ -1039,8 +1067,8 @@ benchmark_comparison = build_benchmark_comparison(evaluation_metrics)
 diagnostic_summary = build_diagnostic_summary(backtest_diagnostics)
 
 latest_season = int(team_season_summary["season"].max())
-latest = team_season_summary[team_season_summary["season"] == latest_season].copy()
-jets_latest = latest[latest["team"] == config.focus_team].iloc[0]
+latest = enrich_latest_team_summary(team_season_summary[team_season_summary["season"] == latest_season].copy())
+jets_latest = latest_jets_summary_row(latest, jets_season_summary, config.focus_team, latest_season)
 
 training_end_season = None
 if not model_runs.empty and "training_end_season" in model_runs.columns:
