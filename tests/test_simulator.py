@@ -66,3 +66,13 @@ def test_simulate_team_improvement_returns_uncertainty_columns_and_attrs() -> No
     assert scenario.attrs["ensemble_size"] == 3
     assert len(scenario.attrs["baseline_expected_wins_distribution"]) == 3
     assert len(scenario.attrs["scenario_expected_wins_distribution"]) == 3
+    assert isinstance(scenario.attrs["baseline_expected_wins_distribution"], list)
+    assert isinstance(scenario.attrs["scenario_expected_wins_distribution"], list)
+    melted = scenario[["week", "baseline_win_probability", "scenario_win_probability"]].copy()
+    melted.attrs = {}
+    assert not melted.melt(
+        id_vars="week",
+        value_vars=["baseline_win_probability", "scenario_win_probability"],
+        var_name="series",
+        value_name="value",
+    ).empty

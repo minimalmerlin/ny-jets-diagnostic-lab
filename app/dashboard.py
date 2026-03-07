@@ -737,7 +737,9 @@ def tracking_gap_chart(tracking_lens: pd.DataFrame, family: str, season: int) ->
 
 
 def scenario_comparison_chart(scenario: pd.DataFrame) -> alt.Chart:
-    plot = scenario[["week", "baseline_win_probability", "scenario_win_probability"]].melt(
+    plot_source = scenario[["week", "baseline_win_probability", "scenario_win_probability"]].copy()
+    plot_source.attrs = {}
+    plot = plot_source.melt(
         id_vars="week",
         value_vars=["baseline_win_probability", "scenario_win_probability"],
         var_name="series",
@@ -771,8 +773,12 @@ def scenario_comparison_chart(scenario: pd.DataFrame) -> alt.Chart:
 
 
 def scenario_delta_chart(scenario: pd.DataFrame) -> alt.Chart:
+    plot = scenario[
+        ["week", "opponent", "win_probability_delta", "decision_confidence", "positive_scenario_share"]
+    ].copy()
+    plot.attrs = {}
     return (
-        alt.Chart(scenario)
+        alt.Chart(plot)
         .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
         .encode(
             x=alt.X("week:O", title="Week"),

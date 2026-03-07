@@ -146,6 +146,6 @@ def simulate_team_improvement(
     result["location"] = np.where(result["home_team"] == focus_team, "home", "away")
     result.attrs["model_name"] = model_name
     result.attrs["ensemble_size"] = int(baseline_win_distribution.shape[0])
-    result.attrs["baseline_expected_wins_distribution"] = baseline_win_distribution.sum(axis=1)
-    result.attrs["scenario_expected_wins_distribution"] = scenario_win_distribution.sum(axis=1)
+    result.attrs["baseline_expected_wins_distribution"] = baseline_win_distribution.sum(axis=1).tolist()
+    result.attrs["scenario_expected_wins_distribution"] = scenario_win_distribution.sum(axis=1).tolist()
     return result.sort_values(["season", "week"]).reset_index(drop=True)
