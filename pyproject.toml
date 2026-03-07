@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jets-project"
+version = "0.1.0"
+description = "NY Jets Abschlussprojekt mit NFL-Datenpipeline, Prognosemodellen und What-if-Simulator."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "altair>=6.0.0",
+  "joblib>=1.4",
+  "lightgbm>=4.6.0",
+  "nflreadpy>=0.1.5,<0.2",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "pyarrow>=16.0.0",
+  "scikit-learn>=1.5",
+  "streamlit>=1.42",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jets_project"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
